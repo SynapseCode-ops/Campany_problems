@@ -1,25 +1,47 @@
+/*
+    Problem: Rotting Oranges
+    Approach: Breadth First Search (BFS) using a queue
+    -----------------------------------------------
+    Time Complexity:
+        O(N * M) 
+        → We visit each cell at most once, and each cell is pushed & popped from the queue at most once.
+
+    Space Complexity:
+        O(N * M) 
+        → Queue can store up to all the oranges in the worst case.
+
+    Where:
+        N = number of rows
+        M = number of columns
+*/
 
 class Solution {
 public:
+    // Directions: down, up, right, left
     vector<vector<int>> dir = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
     int orangesRotting(vector<vector<int>>& grid) {
-        int time = 0;
-        int fo = 0;
+        int time = 0;  // To track minutes passed
+        int fresh = 0; // Count of fresh oranges
+
         int rows = grid.size();
         int cols = grid[0].size();
-        queue<pair<int, int>> q;
 
+        queue<pair<int, int>> q; // Queue to store rotten oranges
+
+        // Step 1: Initialize the queue with all rotten oranges
+        //         and count total fresh oranges
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < cols; j++) {
                 if (grid[i][j] == 2)
-                    q.push({i, j});
+                    q.push({i, j});  // Rotten orange found
                 if (grid[i][j] == 1)
-                    fo++;
+                    fresh++;         // Fresh orange count
             }
         }
 
-        while (q.size()) {
+        // Step 2: BFS traversal to rot adjacent fresh oranges level by level
+        while (!q.empty()) {
             int size = q.size();
             for (int k = 0; k < size; k++) {
                 auto ele = q.front();
@@ -27,20 +49,29 @@ public:
                 int i = ele.first;
                 int j = ele.second;
 
+                // Explore all 4 directions
                 for (int d = 0; d < 4; d++) {
                     int r = i + dir[d][0];
                     int c = j + dir[d][1];
+
+                    // Skip invalid or already rotten/empty cells
                     if (r < 0 || r >= rows || c < 0 || c >= cols)
                         continue;
                     if (grid[r][c] == 2 || grid[r][c] == 0)
                         continue;
+
+                    // Rot the fresh orange
                     grid[r][c] = 2;
-                    fo--;
+                    fresh--;
                     q.push({r, c});
                 }
             }
-            if(q.size() > 0) time++;
+            // Increase time only if new oranges got rotten in this round
+            if (!q.empty()) 
+                time++;
         }
-        return (fo)?-1:time;
+
+        // Step 3: If there are still fresh oranges left, return -1
+        return (fresh) ? -1 : time;
     }
 };
