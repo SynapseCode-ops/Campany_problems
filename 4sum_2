@@ -1,0 +1,105 @@
+
+Brute Force Approach — O(n⁴)
+SPACE _ O(1)
+
+class Solution {
+public:
+    int fourSumCount(vector<int>& nums1, vector<int>& nums2,
+                     vector<int>& nums3, vector<int>& nums4) {
+        int n = nums1.size();
+        int count = 0;
+
+        for (int a : nums1) {
+            for (int b : nums2) {
+                for (int c : nums3) {
+                    for (int d : nums4) {
+                        if (a + b + c + d == 0) {
+                            count++;
+                        }
+                    }
+                }
+            }
+        }
+
+        return count;
+    }
+};
+
+
+
+Better Approach — O(n³ log n)
+
+We fix 3 arrays and binary search for the 4th.
+
+class Solution {
+public:
+    int fourSumCount(vector<int>& nums1, vector<int>& nums2,
+                     vector<int>& nums3, vector<int>& nums4) {
+        int n = nums1.size();
+        sort(nums4.begin(), nums4.end());
+        int count = 0;
+
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                for (int k = 0; k < n; k++) {
+                    int target = -(nums1[i] + nums2[j] + nums3[k]);
+                    int low = 0, high = n - 1;
+                    while (low <= high) {
+                        int mid = low + (high - low) / 2;
+                        if (nums4[mid] == target) {
+                            // count duplicates
+                            int left = mid, right = mid;
+                            while (left - 1 >= 0 && nums4[left - 1] == target) left--;
+                            while (right + 1 < n && nums4[right + 1] == target) right++;
+                            count += (right - left + 1);
+                            break;
+                        } 
+                        else if (nums4[mid] < target) low = mid + 1;
+                        else high = mid - 1;
+                    }
+                }
+            }
+        }
+
+        return count;
+    }
+};
+
+
+
+
+
+Optimal Approach — O(n²) using Hash Map
+
+SPACE _  O(n²)
+
+class Solution {
+public:
+    int fourSumCount(vector<int>& nums1, vector<int>& nums2,
+                     vector<int>& nums3, vector<int>& nums4) {
+        unordered_map<int, int> sumCount;
+        int n = nums1.size();
+
+        // Step 1: Store all sums of nums1 + nums2
+        for (int a : nums1) {
+            for (int b : nums2) {
+                sumCount[a + b]++;
+            }
+        }
+
+        int count = 0;
+
+        // Step 2: For each pair in nums3 + nums4, check complement
+        for (int c : nums3) {
+            for (int d : nums4) {
+                int target = -(c + d);
+                if (sumCount.find(target) != sumCount.end()) {
+                    count += sumCount[target];
+                }
+            }
+        }
+
+        return count;
+    }
+};
+
